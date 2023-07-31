@@ -49,7 +49,7 @@ This is Arduino sample code for the CFAF80160Ax-0096Tx family of displays. These
 ```
 ## Display information
 Here are links to our active displays:\
-[CFAF80160A0-0096TN]()\
-[CFAF80160A0-0096TC]()
+[CFAF80160A0-0096TN](https://www.crystalfontz.com/product/cfaf80160a00096tn-80x160-small-color-tft-display)\
+[CFAF80160A0-0096TW](https://www.crystalfontz.com/product/cfaf80160a00096tw-80x160-tiny-touchscreen-tft-display)
 
 For more information about other TFT offerings, please see our full list [here](https://www.crystalfontz.com/c/tft-lcd-displays/25).
