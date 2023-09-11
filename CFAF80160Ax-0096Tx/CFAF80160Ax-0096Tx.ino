@@ -291,7 +291,7 @@ void Initialize_LCD(void)
 
   // interface pixel format (16-bit)
   SPI_sendCommand(ST7735_COLMOD);
-  SPI_sendData(0x06);
+  SPI_sendData(0x05);
 
   // display on command
   SPI_sendCommand(ST7735_DISPON); // Display On
@@ -332,11 +332,13 @@ void Fill_LCD(uint8_t R, uint8_t G, uint8_t B)
   uint8_t x1, x2;
   setWrite_position(0, 0); // set origin
 
+  x1 = (R & 0xF8) | (G >> 5); // 5-6-5 conversion
+  x2 = ((G & 0x1C) << 3) | (B >> 3);
+
   for (i = 0; i < (160 * 80); i++)
   {
-    SPI_sendData(R);
-    SPI_sendData(G);
-    SPI_sendData(B);
+    SPI_sendData(x1);
+    SPI_sendData(x2);
   }
 }
 
@@ -351,49 +353,65 @@ void ColorBars()
 
   // blue bar
   setWrite_position(0, 0);
+  R = 0xFF;
+  G = 0x00;
+  B = 0x00;
+  x1 = (R & 0xF8) | (G >> 5); // 5-6-5 conversion
+  x2 = ((G & 0x1C) << 3) | (B >> 3);
   for (i = 0; i < barHeight; i++) // set the vertical limit as the height of one bar
   {
     for (j = 0; j < 80; j++)
     {
-      SPI_sendData(0xFF);
-      SPI_sendData(0x00);
-      SPI_sendData(0x00);
+      SPI_sendData(x1);
+      SPI_sendData(x2);
     }
   }
 
   // green bar
   setWrite_position(0, barHeight); // update the position to start from the end of the first bar
+  R = 0x00;
+  G = 0xFF;
+  B = 0x00;
+  x1 = (R & 0xF8) | (G >> 5); 
+  x2 = ((G & 0x1C) << 3) | (B >> 3);
   for (i = 0; i < barHeight; i++)
   {
     for (j = 0; j < 80; j++)
     {
-      SPI_sendData(0x00);
-      SPI_sendData(0xFF);
-      SPI_sendData(0x00);
+      SPI_sendData(x1);
+      SPI_sendData(x2);
     }
   }
 
   // red bar
   setWrite_position(0, (barHeight * 2)); // update the position to start from the end of the second bar
+  R = 0x00;
+  G = 0x00;
+  B = 0xFF;
+  x1 = (R & 0xF8) | (G >> 5); 
+  x2 = ((G & 0x1C) << 3) | (B >> 3);
   for (i = 0; i < barHeight; i++)
   {
     for (j = 0; j < 80; j++)
     {
-      SPI_sendData(0x00);
-      SPI_sendData(0x00);
-      SPI_sendData(0xFF);
+      SPI_sendData(x1);
+      SPI_sendData(x2);
     }
   }
 
-  // yellow bar
+  // purple bar
   setWrite_position(0, (barHeight * 3)); // update the position to start from the end of the third bar
+  R = 0xFF;
+  G = 0x00;
+  B = 0xFF;
+  x1 = (R & 0xF8) | (G >> 5); 
+  x2 = ((G & 0x1C) << 3) | (B >> 3);
   for (i = 0; i < barHeight; i++)
   {
     for (j = 0; j < 80; j++)
     {
-      SPI_sendData(0x00);
-      SPI_sendData(0xFF);
-      SPI_sendData(0xFF);
+      SPI_sendData(x1);
+      SPI_sendData(x2);
     }
   }
 }
@@ -636,10 +654,13 @@ void touchDemo()
 // function to draw a pixel on the screen
 void drawPixel(uint16_t x, uint16_t y, uint8_t R, uint8_t G, uint8_t B)
 {
+  uint8_t x1, x2;
+
   setWrite_position(x, y);
-  SPI_sendData(R);
-  SPI_sendData(G);
-  SPI_sendData(B);
+  x1 = (R & 0xF8) | (G >> 5);
+  x2 = ((G & 0x1C) << 3) | (B >> 3);
+  SPI_sendData(x1);
+  SPI_sendData(x2);
 }
 
 // draws a line of a specified color from point [x0, y0] to [x1, y1]
@@ -725,9 +746,9 @@ void setup()
 }
 
 // set the demos to 1 to try it out
-#define touch_demo 1
-#define colorbars 1
-#define bmp_demo 0
+#define touch_demo 0
+#define colorbars 0
+#define bmp_demo 1
 #define showcolor_demo 0
 
 void loop()
@@ -748,5 +769,14 @@ void loop()
   delay(10000);
 #endif
 
-  while (1) ;
+#if showcolor_demo
+  Fill_LCD(0xFF, 0x00, 0xFF); // purple
+  delay(1000);
+  Fill_LCD(0x00, 0xFF, 0xFF); // yellow
+  delay(1000);
+  Fill_LCD(0xFF, 0xFF, 0x00); // aqua
+  delay(1000);
+#endif
+
+while (1) ;
 }
